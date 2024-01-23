@@ -1,0 +1,38 @@
+
+#!/bin/bash
+
+# 设置日志文件路径
+LOG_FILE="/var/log/pal_auto_restart.log"
+
+# 重定向stdout（标准输出）和stderr（标准错误）到日志文件
+exec 1>>"$LOG_FILE"
+exec 2>&1
+
+# 检查参数数量
+if [ "$#" -ne 1 ]; then
+    echo "Usage: \$0 <memory_threshold_percentage>"
+    exit 1
+fi
+
+# 设置服务名和内存阈值
+SERVICE="PalServer-Linux"
+THRESHOLD_PERCENTAGE=$1
+
+# 计算总内存和阈值
+TOTAL_MEM=$(awk "/MemTotal/ {print \$2}" /proc/meminfo)
+THRESHOLD=$((TOTAL_MEM * THRESHOLD_PERCENTAGE / 100))
+
+# 计算服务的内存占用
+SERVICE_MEM=$(ps -C $SERVICE --no-headers -o rss | awk "{sum+=\$1} END {print sum}")
+SERVICE_MEM=${SERVICE_MEM:-0} # 如果SERVICE_MEM为空，则赋值为0
+
+# 计算内存占用百分比
+MEM_USAGE_PERCENTAGE=$((100 * SERVICE_MEM / TOTAL_MEM))
+
+# 如果内存占用超过阈值，则重启服务
+if [ "$SERVICE_MEM" -gt "$THRESHOLD" ]; then
+    echo "[$(date)] Memory usage by $SERVICE is $MEM_USAGE_PERCENTAGE%, over $THRESHOLD_PERCENTAGE%. Restarting the service."
+    systemctl restart $SERVICE
+else
+    echo "[$(date)] Memory usage by $SERVICE is $MEM_USAGE_PERCENTAGE%, under $THRESHOLD_PERCENTAGE%."
+fi

@@ -1,0 +1,18 @@
+[Unit]
+Description=Pal Server Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/steam/Steam/steamapps/common/PalServer/PalServer.sh
+User=steam
+Group=steam
+Restart=always
+# 指定工作目录，如果需要的话
+WorkingDirectory=/home/steam/Steam/steamapps/common/PalServer
+# 日志记录 - 标准输出和标准错误输出将被重定向到指定的日志文件
+StandardOutput=append:/var/log/palserver.log
+StandardError=append:/var/log/palserver.log
+
+[Install]
+WantedBy=multi-user.target
