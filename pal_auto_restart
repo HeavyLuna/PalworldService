@@ -31,7 +31,7 @@ MEM_USAGE_PERCENTAGE=$((100 * SERVICE_MEM / TOTAL_MEM))
 # 如果内存占用超过阈值，则重启服务
 if [ "$SERVICE_MEM" -gt "$THRESHOLD" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Memory usage by palserver.service is $MEM_USAGE_PERCENTAGE%, over $THRESHOLD_PERCENTAGE%. Restarting the service."
-    systemctl restart palserver.service
+    sudo systemctl restart palserver.service
 else
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Memory usage by palserver.service is $MEM_USAGE_PERCENTAGE%, under $THRESHOLD_PERCENTAGE%."
 fi
